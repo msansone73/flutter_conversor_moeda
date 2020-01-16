@@ -3,21 +3,28 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 
-const request = "https://api.hgbrasil.com/finance?format=json&key=f0978e41";
+//const request = "https://api.hgbrasil.com/finance?format=json&key=f0978e41";
+const request = "https://api.hgbrasil.com/finance";
 
 void main() async {
-
   runApp(MaterialApp(
-    home: Home(),
-  )); //MaterialApp
+      home: Home(),
+      theme: ThemeData(
+          hintColor: Colors.amber,
+          primaryColor: Colors.white,
+          inputDecorationTheme: InputDecorationTheme(
+              enabledBorder: OutlineInputBorder(
+                  borderSide:
+                      BorderSide(color: Colors.amber)) //OutlineInputBorder
+              ) // InputDecorationTheme
+          ) // ThemeData
+      )); //MaterialApp
 }
-
 
 Future<Map> getData() async {
   http.Response response = await http.get(request);
   //print(json.decode(response.body)['results']['currencies']['USD']);
   return json.decode(response.body);
-
 }
 
 class Home extends StatefulWidget {
@@ -26,7 +33,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-
   double dolar;
   double euro;
 
@@ -42,37 +48,91 @@ class _HomeState extends State<Home> {
       body: FutureBuilder<Map>(
         future: getData(),
         builder: (context, snapshot) {
-          switch(snapshot.connectionState){
+          switch (snapshot.connectionState) {
             case ConnectionState.none:
             case ConnectionState.waiting:
               return Center(
-                child: Text('carregando dados....',
-                  style: TextStyle( color: Colors.amber, fontSize: 25 ),
-                textAlign: TextAlign.center,),
+                child: Text(
+                  'carregando dados....',
+                  style: TextStyle(color: Colors.amber, fontSize: 25),
+                  textAlign: TextAlign.center,
+                ),
               ); // Center
             default:
-              if(snapshot.hasError){
+              if (snapshot.hasError) {
                 return Center(
-                  child: Text('erro:' + snapshot.error.toString(),
-                    style: TextStyle( color: Colors.red, fontSize: 25 ),
-                    textAlign: TextAlign.center,),
+                  child: Text(
+                    'erro:' + snapshot.error.toString(),
+                    style: TextStyle(color: Colors.red, fontSize: 25),
+                    textAlign: TextAlign.center,
+                  ),
                 ); // Center
               } else {
+                dolar = snapshot.data['results']['currencies']['USD']['buy'];
+                euro = snapshot.data['results']['currencies']['EUR']['buy'];
 
-                dolar= snapshot.data['results']['currencies']['USD']['buy'];
-                euro= snapshot.data['results']['currencies']['EUR']['buy'];
-
-                return Center(
-                  child: Text('Sem erro : '+ dolar.toStringAsPrecision(4)+euro.toStringAsPrecision(4),
-                    style: TextStyle( color: Colors.green, fontSize: 25 ),
-                    textAlign: TextAlign.center,),
-                ); // Center
+                return SingleChildScrollView(
+                  padding: EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      Icon(
+                        Icons.monetization_on,
+                        size: 150,
+                        color: Colors.amber,
+                      ),
+                      Container(
+                        padding: EdgeInsets.only(top: 10, bottom: 5),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            labelText: 'Reais',
+                            labelStyle: TextStyle(color: Colors.amber),
+                            border: OutlineInputBorder(),
+                            prefixText: 'R\$',
+                          ), //InputDecoration
+                          style: TextStyle(
+                            color: Colors.amber,
+                            fontSize: 25,
+                          ), //TextStyle
+                        ), //TextField
+                      ),// Container
+                      Container(
+                        padding: EdgeInsets.only(top: 5, bottom: 5),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            labelText: 'Dolar',
+                            labelStyle: TextStyle(color: Colors.amber),
+                            border: OutlineInputBorder(),
+                            prefixText: 'R\$',
+                          ), //InputDecoration
+                          style: TextStyle(
+                            color: Colors.amber,
+                            fontSize: 25,
+                          ), //TextStyle
+                        ), //TextField
+                      ),// Container
+                      Container(
+                        padding: EdgeInsets.only(top: 5, bottom: 10),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            labelText: 'Euros',
+                            labelStyle: TextStyle(color: Colors.amber),
+                            border: OutlineInputBorder(),
+                            prefixText: 'R\$',
+                          ), //InputDecoration
+                          style: TextStyle(
+                            color: Colors.amber,
+                            fontSize: 25,
+                          ), //TextStyle
+                        ), //TextField
+                      ),// Container
+                    ], //children: <Widget>
+                  ), // Column
+                ); //SingleChildScrollView
               }
           }
-        },//FutureBuilder
+        }, //FutureBuilder
       ), // body
     ); //Scaffold
   }
 }
-
-
